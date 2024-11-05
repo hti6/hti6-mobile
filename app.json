@@ -19,7 +19,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/AppLogo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.neokofg.neurovision"
     },
     "web": {
       "bundler": "metro",
@@ -41,10 +48,23 @@
         }
       ],
       "expo-font",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "32025232-b1a2-416d-8e8c-aca86f1fc70c"
+      }
     }
   }
 }
