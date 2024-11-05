@@ -1,37 +1,37 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
+import {AuthProvider} from "@/contexts/auth.context";
+import {SafeAreaView} from "react-native";
+import { Inter_900Black, Inter_600SemiBold, Inter_500Medium, Inter_400Regular, useFonts as useInterFonts } from '@expo-google-fonts/inter';
+import { Oswald_700Bold, Oswald_500Medium, Oswald_300Light, useFonts as useOswaldFonts } from '@expo-google-fonts/oswald';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import {useEffect} from "react";
+import { useAssets } from 'expo-asset';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+    const [interLoaded, interErrors] = useInterFonts({
+        Inter_900Black, Inter_600SemiBold, Inter_500Medium, Inter_400Regular
+    });
+    const [oswaldLoaded, oswaldError] = useOswaldFonts({
+        Oswald_700Bold, Oswald_500Medium, Oswald_300Light
+    });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    useEffect(() => {
+        if (oswaldLoaded || oswaldError || interLoaded || interErrors) {
+            SplashScreen.hideAsync();
+        }
+    }, [oswaldLoaded, oswaldError, interLoaded, interErrors]);
+
+    if (!oswaldLoaded && !oswaldError && !interLoaded && !interErrors) {
+        return null;
     }
-  }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
+    return (
+        <AuthProvider>
+            <SafeAreaView style={{ flex: 1 }}>
+                <Stack screenOptions={{ headerShown: false }} />
+            </SafeAreaView>
+        </AuthProvider>
+    );
 }
