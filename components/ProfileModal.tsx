@@ -65,7 +65,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose }) 
                             </View>
                             <View style={styles.infoTextContainer}>
                                 <Text style={styles.infoLabel}>Должность</Text>
-                                <Text style={styles.infoValue}>FULL-STACK РАЗРАБОТЧИК</Text>
+                                <Text style={styles.infoValue}>-</Text>
                             </View>
                         </View>
 
@@ -75,7 +75,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose }) 
                             </View>
                             <View style={styles.infoTextContainer}>
                                 <Text style={styles.infoLabel}>Отдел</Text>
-                                <Text style={styles.infoValue}>УБОРЩИКИ</Text>
+                                <Text style={styles.infoValue}>-</Text>
                             </View>
                         </View>
                     </View>

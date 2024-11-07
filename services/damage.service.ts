@@ -39,7 +39,6 @@ class DamageService {
         if (!token) {
             throw new Error('Не авторизован');
         }
-        console.log(token)
         const response = await fetch(`${this.API_URL}/user/damage_requests`, {
             method: 'GET',
             headers: {

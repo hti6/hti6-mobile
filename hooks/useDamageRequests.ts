@@ -42,7 +42,6 @@ export const useDamageRequests = () => {
             setLoading(true);
             setError(null);
             const response = await damageService.indexDamageRequest();
-            console.log(response.result)
             const transformedData = transformAPIResponse(response.result);
             setRequests(transformedData);
         } catch (err) {

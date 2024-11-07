@@ -90,6 +90,7 @@ export default function SignIn() {
                                     placeholderTextColor="#9CA3AF"
                                     value={password}
                                     onChangeText={setPassword}
+                                    autoCapitalize="none"
                                     secureTextEntry={!showPassword}
                                 />
                                 <TouchableOpacity
