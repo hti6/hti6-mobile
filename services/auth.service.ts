@@ -113,7 +113,6 @@ class AuthService {
             const token = await this.getToken();
             if (!token) return false;
 
-            // Если есть токен, но нет данных пользователя, пробуем их загрузить
             if (!this.user) {
                 await this.loadUser();
             }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Stack } from "expo-router";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { AuthProvider } from "@/contexts/auth.context";
 import {
     Inter_900Black,
@@ -17,18 +17,13 @@ import {
 } from '@expo-google-fonts/oswald';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAssets } from 'expo-asset';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as SystemUI from 'expo-system-ui';
-import Constants from 'expo-constants';
 
-// Prevent auto hide of splash screen
 SplashScreen.preventAutoHideAsync().catch(console.warn);
 
 const REQUIRED_ASSETS = [
     require('@/assets/images/EmptyState.png'),
     require('@/assets/images/Logo.png'),
-    // Add other required assets here
 ];
 
 export default function RootLayout() {
@@ -49,32 +44,13 @@ export default function RootLayout() {
         Oswald_300Light,
     });
 
-    // Load assets
     const [assetsLoaded] = useAssets(REQUIRED_ASSETS);
 
-    // Configure system UI
-    useEffect(() => {
-        const configureSystemUI = async () => {
-            try {
-                await SystemUI.setBackgroundColorAsync('#ffffff');
-            } catch (error) {
-                console.warn('Failed to configure system UI:', error);
-            }
-        };
-
-        configureSystemUI();
-    }, []);
-
-    // Prepare app resources
     const prepareResources = useCallback(async () => {
         try {
-            // Add any additional async resource loading here
-            // For example, fetching initial config, etc.
-
             const isResourcesReady = interLoaded && oswaldLoaded && assetsLoaded;
 
             if (isResourcesReady) {
-                // Set a small timeout to prevent flicker
                 await new Promise(resolve => setTimeout(resolve, 100));
                 await SplashScreen.hideAsync();
                 setIsReady(true);
@@ -85,48 +61,41 @@ export default function RootLayout() {
         }
     }, [interLoaded, oswaldLoaded, assetsLoaded]);
 
-    // Effect for preparing resources
     useEffect(() => {
         prepareResources();
     }, [prepareResources]);
 
-    // Show nothing while preparing
     if (!isReady) {
         return null;
     }
 
-    // If there was an error loading resources, you might want to show a custom error screen
     if (loadError) {
         return (
             <View style={styles.errorContainer}>
-                <ErrorBoundary>
-                    {/* Add your custom error component here */}
-                </ErrorBoundary>
+                <div></div>
             </View>
         );
     }
 
     return (
-        <ErrorBoundary>
-            <GestureHandlerRootView style={styles.container}>
-                <AuthProvider>
-                    <View style={styles.container}>
-                        <Stack
-                            screenOptions={{
-                                headerShown: false,
-                                animation: 'fade',
-                                animationDuration: 200,
-                                contentStyle: styles.contentStyle,
-                                navigationBarColor: '#ffffff',
-                                statusBarStyle: 'dark',
-                                statusBarColor: 'transparent',
-                                statusBarTranslucent: true,
-                            }}
-                        />
-                    </View>
-                </AuthProvider>
-            </GestureHandlerRootView>
-        </ErrorBoundary>
+        <GestureHandlerRootView style={styles.container}>
+            <AuthProvider>
+                <View style={styles.container}>
+                    <Stack
+                        screenOptions={{
+                            headerShown: false,
+                            animation: 'fade',
+                            animationDuration: 200,
+                            contentStyle: styles.contentStyle,
+                            navigationBarColor: '#ffffff',
+                            statusBarStyle: 'dark',
+                            statusBarColor: 'transparent',
+                            statusBarTranslucent: true,
+                        }}
+                    />
+                </View>
+            </AuthProvider>
+        </GestureHandlerRootView>
     );
 }
 

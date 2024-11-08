@@ -14,7 +14,7 @@ interface ApiError {
 
 class DamageService {
     private readonly API_URL = 'http://nvision.su/api/v1';
-    private readonly REQUEST_TIMEOUT = 30000; // 30 seconds timeout
+    private readonly REQUEST_TIMEOUT = 30000;
 
     private async handleResponse(response: Response) {
         if (!response.ok) {
@@ -28,7 +28,6 @@ class DamageService {
                 };
             }
 
-            // Handle specific error cases
             switch (response.status) {
                 case 401:
                     await authService.logout();
@@ -73,7 +72,7 @@ class DamageService {
             });
 
             return await this.handleResponse(response);
-        } catch (error) {
+        } catch (error: any) {
             if (error.name === 'AbortError') {
                 throw new Error('Превышено время ожидания запроса');
             }

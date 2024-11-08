@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import {Platform, Alert, Linking} from 'react-native';
+import {Alert, Linking, Platform} from 'react-native';
 
 class LocationService {
     private static instance: LocationService;
@@ -68,19 +68,16 @@ class LocationService {
                 throw new Error('Location services are not available');
             }
 
-            // Then check/request permissions
             const hasPermission = await this.requestPermissions();
             if (!hasPermission) {
                 throw new Error('Location permission denied');
             }
 
-            // Try to get location with high accuracy first
             if (highAccuracy) {
                 try {
-                    const location = await Location.getCurrentPositionAsync({
+                    return await Location.getCurrentPositionAsync({
                         accuracy: Location.Accuracy.High
                     });
-                    return location;
                 } catch (error) {
                     console.warn('High accuracy location failed, trying low accuracy');
                 }
@@ -91,39 +88,13 @@ class LocationService {
                 accuracy: Location.Accuracy.Balanced
             });
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Get current location error:', error);
             throw new Error(
                 error.message === 'Location permission denied'
                     ? 'Для работы приложения необходим доступ к геолокации'
                     : 'Не удалось получить местоположение'
             );
-        }
-    }
-
-    async getAddressFromCoordinates(latitude: number, longitude: number) {
-        try {
-            const addresses = await Location.reverseGeocodeAsync({ latitude, longitude });
-            if (addresses && addresses.length > 0) {
-                const address = addresses[0];
-                return {
-                    street: address.street,
-                    city: address.city,
-                    region: address.region,
-                    country: address.country,
-                    postalCode: address.postalCode,
-                    formattedAddress: [
-                        address.street,
-                        address.city,
-                        address.region,
-                        address.country
-                    ].filter(Boolean).join(', ')
-                };
-            }
-            return null;
-        } catch (error) {
-            console.error('Reverse geocoding error:', error);
-            return null;
         }
     }
 }

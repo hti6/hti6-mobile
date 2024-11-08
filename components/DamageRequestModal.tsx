@@ -28,6 +28,7 @@ export const CheckMarkImage = () => {
         require('../assets/images/Image.png'),
     ]);
 
+    // @ts-ignore
     return assets ? <Image style={styles.imageStyle} source={assets[0]} /> : null
 }
 

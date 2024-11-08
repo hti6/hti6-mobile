@@ -30,6 +30,7 @@ export default function AppLayout() {
             setIsCapturing(true);
             const result = await capture();
 
+            // @ts-ignore
             setCurrentRequest(result);
             setShowModal(true);
         } catch (error) {
@@ -57,7 +58,6 @@ export default function AppLayout() {
             handleCloseModal();
 
             Alert.alert('Успех', 'Данные успешно отправлены');
-            // setRequests([...requests, newRequest]);
         } catch (error) {
             console.error('Submit error:', error);
             Alert.alert('Ошибка', 'Не удалось отправить заявку');

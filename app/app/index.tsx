@@ -92,6 +92,7 @@ const EmptyStateImage = memo(() => {
 
     return <Image
         style={styles.emptyImage}
+        // @ts-ignore
         source={assets[0]}
         resizeMode="contain"
     />;
@@ -110,6 +111,7 @@ const RequestCard = memo<RequestCardProps>(({ request }) => {
                         { backgroundColor: priorityData.backgroundColor }
                     ]}>
                         <SolarIcon
+                            // @ts-ignore
                             name={priorityData.icon}
                             size={16}
                             color={priorityData.color}
@@ -228,6 +230,7 @@ const HomeScreen = () => {
                         {requests.map((request, index) => (
                             <RequestCard
                                 key={request.id || `request-${index}`}
+                                // @ts-ignore
                                 request={request}
                             />
                         ))}
