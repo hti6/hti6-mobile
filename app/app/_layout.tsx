@@ -4,9 +4,6 @@ import {View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Plat
 import { SolarIcon } from '@/components/SolarIcon';
 import { ProfileModal } from '@/components/ProfileModal';
 import { useAuth } from '@/contexts/auth.context';
-import { Camera } from 'expo-camera';
-import * as Location from 'expo-location';
-import * as ImagePicker from 'expo-image-picker';
 import {damageService} from "@/services/damage.service";
 import {DamageRequestModal} from "@/components/DamageRequestModal";
 import {usePhotoCapture} from "@/components/PhotoCapture";
@@ -15,7 +12,6 @@ export default function AppLayout() {
     const [isProfileVisible, setIsProfileVisible] = useState(false);
     const { user } = useAuth();
     const { capture } = usePhotoCapture();
-    const [requests, setRequests] = useState<Request[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [currentRequest, setCurrentRequest] = useState<{
         photoUrl: string;
@@ -34,9 +30,7 @@ export default function AppLayout() {
             setIsCapturing(true);
             const result = await capture();
 
-            // Устанавливаем данные для модального окна
             setCurrentRequest(result);
-            // Показываем модальное окно
             setShowModal(true);
         } catch (error) {
             console.error('Capture error:', error);

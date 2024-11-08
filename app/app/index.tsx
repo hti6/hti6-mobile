@@ -1,4 +1,4 @@
-import React, { useCallback, memo } from 'react';
+import React, {useCallback, memo, useState, useEffect} from 'react';
 import {
     View,
     Text,
@@ -12,14 +12,16 @@ import {
     Dimensions,
     type ImageStyle,
     type ViewStyle,
-    type TextStyle,
+    type TextStyle, Alert,
 } from 'react-native';
 import { useAssets } from "expo-asset";
 import { useDamageRequests } from "@/hooks/useDamageRequests";
 import { SolarIcon } from '@/components/SolarIcon';
+import {useAuth} from "@/contexts/auth.context";
+import {useRouter} from "expo-router";
 
 // Типизация
-type Priority = 'low' | 'medium' | 'high' | 'critical';
+type Priority = 'low' | 'middle' | 'high' | 'critical';
 
 interface Request {
     id: string;
@@ -62,7 +64,7 @@ const PRIORITY_MAP: Record<Priority, PriorityData> = {
         color: '#595F6B',
         backgroundColor: '#595F6B0D'
     },
-    medium: {
+    middle: {
         icon: 'bolt',
         text: 'Средняя',
         color: '#CE7B00',
@@ -157,17 +159,50 @@ EmptyState.displayName = 'EmptyState';
 // Основной компонент
 const HomeScreen = () => {
     const { requests = [], loading, error, refetch } = useDamageRequests();
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
 
-    const handleRefresh = useCallback(() => {
-        refetch?.();
+    // Check authentication on mount and when auth state changes
+    useEffect(() => {
+        const checkAuth = async () => {
+            if (!isAuthenticated) {
+                router.replace('/auth/sign-in');
+            }
+        };
+        checkAuth();
+    }, [isAuthenticated]);
+
+    const handleRefresh = useCallback(async () => {
+        try {
+            setIsRefreshing(true);
+            await refetch?.();
+        } catch (error) {
+            Alert.alert(
+                'Ошибка обновления',
+                'Не удалось обновить данные. Пожалуйста, попробуйте позже.'
+            );
+        } finally {
+            setIsRefreshing(false);
+        }
     }, [refetch]);
 
-    if (loading && requests.length === 0) {
+    // Show loading state only on initial load
+    if (loading && !isRefreshing && requests.length === 0) {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={styles.loaderContainer}>
                     <ActivityIndicator size="large" color={COLORS.primary} />
                 </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Handle error state
+    if (error && !loading && requests.length === 0) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <EmptyState error={error} />
             </SafeAreaView>
         );
     }
@@ -180,7 +215,7 @@ const HomeScreen = () => {
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
-                        refreshing={loading}
+                        refreshing={isRefreshing}
                         onRefresh={handleRefresh}
                         colors={[COLORS.primary]}
                         tintColor={COLORS.primary}
@@ -192,14 +227,14 @@ const HomeScreen = () => {
                     <View style={styles.content}>
                         {requests.map((request, index) => (
                             <RequestCard
-                                key={`request-${request.id || index}`}
+                                key={request.id || `request-${index}`}
                                 request={request}
                             />
                         ))}
                     </View>
                 ) : (
                     <View style={styles.emptyStateWrapper}>
-                        <EmptyState error={error} />
+                        <EmptyState />
                     </View>
                 )}
             </ScrollView>

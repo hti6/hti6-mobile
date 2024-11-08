@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
@@ -19,7 +19,6 @@ export const usePhotoCapture = () => {
     const uploadImage = async (uri: string): Promise<string> => {
         try {
             const formData = new FormData();
-
             const fileExtension = uri.split('.').pop();
 
             formData.append('files', {
@@ -60,6 +59,47 @@ export const usePhotoCapture = () => {
         return null;
     };
 
+    const getLocation = async () => {
+        try {
+            // Проверяем доступность сервисов геолокации
+            const providerStatus = await Location.getProviderStatusAsync();
+
+            if (!providerStatus.locationServicesEnabled) {
+                throw new Error(
+                    Platform.select({
+                        ios: 'Включите службы геолокации в настройках устройства',
+                        android: 'Включите GPS в настройках устройства',
+                        default: 'Службы геолокации недоступны'
+                    })
+                );
+            }
+
+            // Запрашиваем разрешения на геолокацию
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                throw new Error('Нужно разрешение на использование местоположения');
+            }
+
+            // Пробуем получить локацию с высокой точностью
+            try {
+                return await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.High,
+                    timeout: 15000 // 15 секунд таймаут
+                });
+            } catch (error) {
+                // Если не удалось получить точную локацию, пробуем с низкой точностью
+                console.warn('High accuracy location failed, trying balanced', error);
+                return await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Balanced,
+                    timeout: 15000
+                });
+            }
+        } catch (error) {
+            console.error('Location error:', error);
+            throw error;
+        }
+    };
+
     const capture = async () => {
         try {
             // Запрашиваем разрешения на камеру
@@ -68,16 +108,8 @@ export const usePhotoCapture = () => {
                 throw new Error('Нужно разрешение на использование камеры');
             }
 
-            // Запрашиваем разрешения на геолокацию
-            const locationPermission = await Location.requestForegroundPermissionsAsync();
-            if (!locationPermission.granted) {
-                throw new Error('Нужно разрешение на использование местоположения');
-            }
-
-            // Получаем текущие координаты
-            const currentLocation = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
+            // Получаем локацию
+            const currentLocation = await getLocation();
 
             // Получаем адрес
             const address = await getAddressFromCoordinates(
@@ -110,6 +142,8 @@ export const usePhotoCapture = () => {
         } catch (error) {
             if (error instanceof Error) {
                 Alert.alert('Ошибка', error.message);
+            } else {
+                Alert.alert('Ошибка', 'Произошла неизвестная ошибка');
             }
             throw error;
         }
